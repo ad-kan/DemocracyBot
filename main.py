@@ -40,17 +40,42 @@ async def on_ready():
     print("DemocracyBot is ready")
 
 @bot.command() #arg = create, delete, extend, help ; message id. Assign an ID to each poll
-async def poll(ctx,type,id):
-    if type == "create":
-        create_poll()
+async def poll(ctx,action,id=None):
+    if action == "create":
+        if id == None:
+            pass #error
+
+        message = await ctx.send("```FPTP or IRV?```")
+        def check(reaction,user):
+            return user == ctx.author and str(reaction.emoji) in ['<:FPTPemote:714825461825536051>','<:IRVemote:714827414106013817>']
+        await message.add_reaction('<:FPTPemote:714825461825536051>')
+        await message.add_reaction('<:IRVemote:714827414106013817>')
+        try:
+            reaction, user = await bot.wait_for('reaction_add',timeout=30.0,check=check)
+            if str(reaction.emoji) == '<:FPTPemote:714825461825536051>':
+                polltype = "FPTP"
+            if str(reaction.emoji) == '<:IRVemote:714827414106013817>':
+                polltype = "IRV"
+            await message.clear_reaction('<:FPTPemote:714825461825536051>')
+            await message.clear_reaction('<:IRVemote:714827414106013817>')
+            await ctx.send("Poll duration?")
+            create_poll()
+
+            channel = ctx.channel
+            message = await channel.fetch_message(id)
+        except asyncio.TimeoutError:
+            await message.clear_reaction('<:FPTPemote:714825461825536051>')
+            await message.clear_reaction('<:IRVemote:714827414106013817>')
+            await message.edit(content="```FPTP or IRV? **(Timed out)**```")
+
         await ctx.send("Done.")
-    if type == "remove":
+    if action == "remove":
         pass
-    if type == "flush":
+    if action == "flush":
         pass
-    if type == "extend":
+    if action == "extend":
         pass
-    if type == "help":
+    if action == "help":
         pass
 
 @bot.command()
