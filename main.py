@@ -1,4 +1,5 @@
 # Need to implement multi-server support
+# add scheduled voting
 
 import discord
 from discord import File
@@ -58,9 +59,10 @@ async def poll(ctx,action,id=None):
                 polltype = "IRV"
             await message.clear_reaction('<:FPTPemote:714825461825536051>')
             await message.clear_reaction('<:IRVemote:714827414106013817>')
-            await ctx.send("Poll duration?")
+            await ctx.send("Poll duration? (hours)")
+            try:
+                
             create_poll()
-
             channel = ctx.channel
             message = await channel.fetch_message(id)
         except asyncio.TimeoutError:
